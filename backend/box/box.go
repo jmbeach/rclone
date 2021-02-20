@@ -494,7 +494,11 @@ func (f *Fs) newObjectWithInfo(ctx context.Context, remote string, info *api.Ite
 	var err error
 	if info != nil {
 		// Set info
-		err = o.setMetaData(info)
+		if info.Type == api.ItemTypeFile {
+			err = o.setMetaData(info)
+		} else {
+			err = o.setMetaDataWeblink(info)
+		}
 	} else {
 		err = o.readMetaData(ctx) // reads info and meta, returning an error
 	}
@@ -600,7 +604,7 @@ OUTER:
 				if directoriesOnly {
 					continue
 				}
-			} else {
+			} else if item.Type != api.ItemTypeWeblink {
 				fs.Debugf(f, "Ignoring %q - unknown type %q", item.Name, item.Type)
 				continue
 			}
@@ -645,6 +649,13 @@ func (f *Fs) List(ctx context.Context, dir string) (entries fs.DirEntries, err e
 			// FIXME more info from dir?
 			entries = append(entries, d)
 		} else if info.Type == api.ItemTypeFile {
+			o, err := f.newObjectWithInfo(ctx, remote, info)
+			if err != nil {
+				iErr = err
+				return true
+			}
+			entries = append(entries, o)
+		} else if info.Type == api.ItemTypeWeblink {
 			o, err := f.newObjectWithInfo(ctx, remote, info)
 			if err != nil {
 				iErr = err
@@ -1133,6 +1144,17 @@ func (o *Object) setMetaData(info *api.Item) (err error) {
 	o.modTime = info.ModTime()
 	o.id = info.ID
 	o.publicLink = info.SharedLink.URL
+	return nil
+}
+
+func (o *Object) setMetaDataWeblink(info *api.Item) (err error) {
+	if info.Type != api.ItemTypeWeblink {
+		return errors.Wrapf(fs.ErrorNotAWeblink, "%q is %q", o.remote, info.Type)
+	}
+	o.hasMetaData = true
+	o.modTime = info.ModTime()
+	o.id = info.ID
+	o.publicLink = info.URL
 	return nil
 }
 

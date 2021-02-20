@@ -61,7 +61,7 @@ func (e *Error) Error() string {
 var _ error = (*Error)(nil)
 
 // ItemFields are the fields needed for FileInfo
-var ItemFields = "type,id,sequence_id,etag,sha1,name,size,created_at,modified_at,content_created_at,content_modified_at,item_status,shared_link"
+var ItemFields = "type,id,sequence_id,etag,sha1,name,size,created_at,modified_at,content_created_at,content_modified_at,item_status,shared_link,url"
 
 // Types of things in Item
 const (
@@ -70,6 +70,7 @@ const (
 	ItemStatusActive  = "active"
 	ItemStatusTrashed = "trashed"
 	ItemStatusDeleted = "deleted"
+	ItemTypeWeblink   = "web_link"
 )
 
 // Item describes a folder or a file as returned by Get Folder Items and others
@@ -90,6 +91,7 @@ type Item struct {
 		URL    string `json:"url,omitempty"`
 		Access string `json:"access,omitempty"`
 	} `json:"shared_link"`
+	URL               string  `json:"url,omitempty"` // for web links
 }
 
 // ModTime returns the modification time of the item

@@ -62,6 +62,7 @@ var (
 	ErrorListBucketRequired          = errors.New("bucket or container name is needed in remote")
 	ErrorIsFile                      = errors.New("is a file not a directory")
 	ErrorNotAFile                    = errors.New("is not a regular file")
+	ErrorNotAWeblink                 = errors.New("is not a web link")
 	ErrorNotDeleting                 = errors.New("not deleting files as there were IO errors")
 	ErrorNotDeletingDirs             = errors.New("not deleting directories as there were IO errors")
 	ErrorOverlapping                 = errors.New("can't sync or move files on overlapping remotes")
